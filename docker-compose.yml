@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  # app:
+  #   build: .
+  #   container_name: custom_agent_service
+  #   ports:
+  #     - "${PORT:-8089}:8080"
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     - redis
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis_server
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: [ "redis-server", "--appendonly", "yes" ]
+
+  redis-ui:
+    image: redis/redisinsight:latest
+    container_name: redis_ui
+    ports:
+      - "5540:5540"
+    restart: unless-stopped
+
+volumes:
+  redis-data:
