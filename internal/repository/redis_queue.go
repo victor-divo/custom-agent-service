@@ -27,15 +27,14 @@ func (r *RedisQueue) Enqueue(ctx context.Context, payload model.WebhookPayload) 
 		return err
 	}
 
-	return r.client.LPush(ctx, r.QueueName, payloadJSON).Err()
+	return r.client.RPush(ctx, r.QueueName, payloadJSON).Err()
 }
 
-func (q *RedisQueue) Dequeue(ctx context.Context) (*model.WebhookPayload, error) {
-	result, err := q.client.BRPop(ctx, 5*time.Second, q.QueueName).Result()
+func (r *RedisQueue) Dequeue(ctx context.Context) (*model.WebhookPayload, error) {
+	result, err := r.client.BLPop(ctx, 5*time.Second, r.QueueName).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return nil, nil
-
 		}
 		return nil, err
 	}
@@ -50,4 +49,13 @@ func (q *RedisQueue) Dequeue(ctx context.Context) (*model.WebhookPayload, error)
 	}
 
 	return &payload, nil
+}
+
+func (r *RedisQueue) Requeue(ctx context.Context, payload model.WebhookPayload) error {
+	payloadJSON, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	return r.client.LPush(ctx, r.QueueName, payloadJSON).Err()
 }

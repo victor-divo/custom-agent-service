@@ -9,4 +9,5 @@ import (
 type Queue interface {
 	Enqueue(ctx context.Context, payload model.WebhookPayload) error
 	Dequeue(ctx context.Context) (*model.WebhookPayload, error)
+	Requeue(ctx context.Context, payload model.WebhookPayload) error
 }
