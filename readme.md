@@ -92,10 +92,10 @@ How to setup the service
 ### Sequence Diagram
 
 This is the sequence diagram of how the general process happens continously
-![Sequence Diagram](https://raw.githubusercontent.com/victor-divo/custom-agent-service/main/documentation/sequence_diagram.jpg)
+![Sequence Diagram](https://raw.githubusercontent.com/victor-divo/custom-agent-service/main/documentation/sequence_diagram.png)
 
 <!-- CONTACT -->
 
 ## Contact
 
-Victor Divo Mahendra - victormahendrausm@gmail.com - wa.me/+6287776901628
+Victor Divo Mahendra - victormahendrausm@gmail.com - [Whatsapp](wa.me/+6287776901628)
