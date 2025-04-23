@@ -27,7 +27,7 @@ func main() {
 
 	redisClient := config.NewRedisClient()
 	logger.Info("Connected to Redis")
-	dynCfg := config.NewDynamicConfig(redisClient, logger, 1*time.Minute)
+	dynCfg := config.NewDynamicConfig(redisClient, logger, 1*time.Minute, config.GetDefaultMaxAgentChats())
 
 	queue := repository.NewRedisQueue(redisClient, "webhook_queue")
 	webhookService := service.NewWebhookService(queue, logger)

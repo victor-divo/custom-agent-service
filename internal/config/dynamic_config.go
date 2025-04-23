@@ -11,18 +11,20 @@ import (
 )
 
 type DynamicConfig struct {
-	redis        *redis.Client
-	logger       *slog.Logger
-	maxAgentChat int
-	mu           sync.RWMutex
-	interval     time.Duration
+	redis          *redis.Client
+	logger         *slog.Logger
+	maxAgentChat   int
+	defaultMaxChat int
+	mu             sync.RWMutex
+	interval       time.Duration
 }
 
-func NewDynamicConfig(redis *redis.Client, logger *slog.Logger, interval time.Duration) *DynamicConfig {
+func NewDynamicConfig(redis *redis.Client, logger *slog.Logger, interval time.Duration, fallback int) *DynamicConfig {
 	dc := &DynamicConfig{
-		redis:    redis,
-		logger:   logger,
-		interval: interval,
+		redis:          redis,
+		logger:         logger,
+		interval:       interval,
+		defaultMaxChat: fallback,
 	}
 	go dc.autoReload()
 	return dc
@@ -57,5 +59,10 @@ func (c *DynamicConfig) autoReload() {
 func (c *DynamicConfig) GetMaxAgentChat() int {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
+
+	if c.maxAgentChat == 0 {
+		return c.defaultMaxChat
+	}
+
 	return c.maxAgentChat
 }

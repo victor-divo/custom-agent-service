@@ -3,6 +3,7 @@ package config
 import (
 	"log/slog"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -24,4 +25,12 @@ func GetSecretKey() string {
 
 func GetBaseURL() string {
 	return os.Getenv("QISCUS_BASE_URL")
+}
+
+func GetDefaultMaxAgentChats() int {
+	defaultMaxChats, err := strconv.Atoi(os.Getenv("DEFAULT_MAX_AGENT_CHATS"))
+	if err != nil {
+		return 2
+	}
+	return defaultMaxChats
 }
