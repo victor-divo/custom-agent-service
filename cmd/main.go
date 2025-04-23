@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/victor-divo/custom-agent-service/internal/config"
@@ -26,13 +27,14 @@ func main() {
 
 	redisClient := config.NewRedisClient()
 	logger.Info("Connected to Redis")
+	dynCfg := config.NewDynamicConfig(redisClient, logger, 1*time.Minute)
 
 	queue := repository.NewRedisQueue(redisClient, "webhook_queue")
 	webhookService := service.NewWebhookService(queue, logger)
 	WebhookHandler := handler.NewWebhookHandler(webhookService)
 
 	// start worker
-	worker := worker.NewWebhookWorker(queue, logger)
+	worker := worker.NewWebhookWorker(queue, logger, dynCfg)
 	worker.Start(context.Background())
 
 	r.POST("/webhook", WebhookHandler.Handle)
