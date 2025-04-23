@@ -10,19 +10,20 @@ import (
 
 type WebhookService struct {
 	Queue  repository.Queue
-	logger *slog.Logger
+	Logger *slog.Logger
 }
 
 func NewWebhookService(queue repository.Queue, logger *slog.Logger) *WebhookService {
 	return &WebhookService{
-		Queue: queue,
+		Queue:  queue,
+		Logger: logger,
 	}
 }
 
 func (s *WebhookService) HandleWebhook(ctx context.Context, payload model.WebhookPayload) error {
 	err := s.Queue.Enqueue(ctx, payload)
 	if err != nil {
-		s.logger.Info("Webhook queued")
+		s.Logger.Info("Webhook queued")
 	}
 	return err
 }
