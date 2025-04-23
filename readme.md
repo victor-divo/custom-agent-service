@@ -84,15 +84,15 @@ How to setup the service
 
 1. WebHook Receiver.  
    This is the one who tell the system if any chat without an Agent is coming, and add it to the queue  
-   ![Flow Chart](https://raw.githubusercontent.com/victor-divo/custom-agent-service/main/documentation/diagram_webhook.png)
+   ![Flow Chart](https://raw.githubusercontent.com/victor-divo/custom-agent-service/main/documentation/diagram_webhook.jpg)
 2. Worker.  
    This is the code that process all the item in the queue
-   ![Flow Chart](https://raw.githubusercontent.com/victor-divo/custom-agent-service/main/documentation/diagram_worker.png)
+   ![Flow Chart](https://raw.githubusercontent.com/victor-divo/custom-agent-service/main/documentation/diagram_worker.jpg)
 
 ### Sequence Diagram
 
 This is the sequence diagram of how the general process happens continously
-![Sequence Diagram](https://raw.githubusercontent.com/victor-divo/custom-agent-service/main/documentation/sequence_diagram.png)
+![Sequence Diagram](https://raw.githubusercontent.com/victor-divo/custom-agent-service/main/documentation/sequence_diagram.jpg)
 
 <!-- CONTACT -->
 
