@@ -34,7 +34,7 @@ func (s *AgentManagementService) GetAllAgents(ctx context.Context) ([]model.Agen
 	_, err := s.Client.R().
 		SetContext(ctx).
 		SetResult(&getAllAgentsResponse).
-		Get("/api/v2/admin/agents/by_division?division_ids[]=133455")
+		Get("/api/v2/admin/agents/by_division?page=1&limit=100&division_ids[]=133455&is_available=true&sort=asc")
 
 	if err != nil {
 		s.Logger.Error("Error fetching agents:", "error", err)
