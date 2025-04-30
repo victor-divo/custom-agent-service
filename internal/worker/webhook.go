@@ -13,16 +13,18 @@ import (
 )
 
 type WebhookWorker struct {
-	Queue         repository.Queue
-	Logger        *slog.Logger
-	DynamicConfig *config.DynamicConfig
+	Queue           repository.Queue
+	Logger          *slog.Logger
+	DynamicConfig   *config.DynamicConfig
+	AgentRepository *repository.AgentRepository
 }
 
-func NewWebhookWorker(queue repository.Queue, logger *slog.Logger, DynamicConfig *config.DynamicConfig) *WebhookWorker {
+func NewWebhookWorker(queue repository.Queue, logger *slog.Logger, DynamicConfig *config.DynamicConfig, AgentRepository *repository.AgentRepository) *WebhookWorker {
 	return &WebhookWorker{
-		Queue:         queue,
-		Logger:        logger,
-		DynamicConfig: DynamicConfig,
+		Queue:           queue,
+		Logger:          logger,
+		DynamicConfig:   DynamicConfig,
+		AgentRepository: AgentRepository,
 	}
 }
 
@@ -66,17 +68,33 @@ func (w *WebhookWorker) processPayload(payload *model.WebhookPayload) (bool, err
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	logger.Info("processing data")
 	agentManagementService := service.NewAgentManagementService(logger)
+	var agents []model.Agent
 
-	agents, err := agentManagementService.GetAllAgents(context.Background())
+	localDataAgents, err := w.AgentRepository.GetAllAgents(context.Background())
 	if err != nil {
-		logger.Error("Error fetching agents:", "error", err)
-		return false, err
+		logger.Error("Error fetching local agents:", "error", err)
+	}
+
+	if len(localDataAgents) != 0 {
+		agents = localDataAgents
+	} else {
+		agents, err = agentManagementService.GetAllAgents(context.Background())
+		if err != nil {
+			logger.Error("Error fetching agents:", "error", err)
+			return false, err
+		}
+		w.AgentRepository.SetInitialAgent(context.Background(), agents)
 	}
 
 	isAgentFull := false
 	for i, agent := range agents {
 		if isAgentEnglible(agent, w) {
 			agentManagementService.AssignAgent(context.Background(), agent.ID, payload.RoomID)
+			err = w.AgentRepository.IncreaseCustomerCount(context.Background(), agent.ID)
+			if err != nil {
+				logger.Error("Error increasing customer count:", "error", err)
+				return false, err
+			}
 			break
 		}
 		if i == len(agents)-1 {
@@ -88,10 +106,5 @@ func (w *WebhookWorker) processPayload(payload *model.WebhookPayload) (bool, err
 }
 
 func isAgentEnglible(agent model.Agent, w *WebhookWorker) bool {
-	if agent.IsAvailable && agent.CurrentCustomerCount < w.DynamicConfig.GetMaxAgentChat() {
-		return true
-	}
-
-	return false
-
+	return agent.CurrentCustomerCount < w.DynamicConfig.GetMaxAgentChat()
 }
