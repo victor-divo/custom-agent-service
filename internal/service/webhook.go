@@ -9,14 +9,16 @@ import (
 )
 
 type WebhookService struct {
-	Queue  repository.Queue
-	Logger *slog.Logger
+	Queue           repository.Queue
+	Logger          *slog.Logger
+	AgentRepository repository.AgentRepository
 }
 
-func NewWebhookService(queue repository.Queue, logger *slog.Logger) *WebhookService {
+func NewWebhookService(queue repository.Queue, logger *slog.Logger, agentRepository repository.AgentRepository) *WebhookService {
 	return &WebhookService{
-		Queue:  queue,
-		Logger: logger,
+		Queue:           queue,
+		Logger:          logger,
+		AgentRepository: agentRepository,
 	}
 }
 
@@ -26,4 +28,8 @@ func (s *WebhookService) HandleWebhook(ctx context.Context, payload model.Webhoo
 		s.Logger.Info("Webhook queued")
 	}
 	return err
+}
+
+func (s *WebhookService) HandleResolvedChat(ctx context.Context, payload model.ResolvePayload) error {
+	return s.AgentRepository.DecreaseCustomerCount(ctx, payload.ResolvedBy.ID)
 }
